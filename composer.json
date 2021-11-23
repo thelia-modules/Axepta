@@ -1,6 +1,6 @@
 {
-  "name": "your-vendor/axepta-module",
-  "description": "Axepta module for Thelia",
+  "name": "thelia/axepta-module",
+  "description": "Axepta payment module for Thelia",
   "license": "LGPL-3.0-or-later",
   "type": "thelia-module",
   "require": {

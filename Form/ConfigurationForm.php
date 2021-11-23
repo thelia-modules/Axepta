@@ -28,7 +28,7 @@ class ConfigurationForm extends BaseForm
                         'TEST' => 'Test',
                         'PRODUCTION' => 'Production',
                     ],
-                    'label' => $this->trans('Mode de fonctionnement'),
+                    'label' => $this->trans('Mode de fonctionnement', []),
                     'data' => Axepta::getConfigValue(Axepta::MODE),
                 ]
             )
@@ -48,7 +48,7 @@ class ConfigurationForm extends BaseForm
                 [
                     'constraints' => [new NotBlank()],
                     'required' => true,
-                    'label' => $this->trans('HMAC'),
+                    'label' => $this->trans('HMAC key'),
                     'data' => Axepta::getConfigValue(Axepta::HMAC, ''),
                 ]
             )
@@ -58,7 +58,7 @@ class ConfigurationForm extends BaseForm
                 [
                     'constraints' => [new NotBlank()],
                     'required' => true,
-                    'label' => $this->trans('Crypt key'),
+                    'label' => $this->trans('Blowfish encryption key'),
                     'data' => Axepta::getConfigValue(Axepta::CRYPT_KEY, ''),
                 ]
             )
@@ -140,7 +140,7 @@ class ConfigurationForm extends BaseForm
 
     public function getName()
     {
-        return 'scalapay_configuration';
+        return 'axepta_configuration';
     }
 
     protected function trans($str, $params = [])

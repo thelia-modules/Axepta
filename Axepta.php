@@ -12,14 +12,11 @@
 
 namespace Axepta;
 
-use GuzzleHttp\Client;
-use SmartyRedirection\Smarty\Plugins\Redirect;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
+use Axepta\Util\Axepta as AxeptaPayment;
 use Thelia\Core\Translation\Translator;
+use Thelia\Log\Tlog;
 use Thelia\Model\Order;
 use Thelia\Module\AbstractPaymentModule;
-use \Axepta\Util\Axepta as AxeptaPayment;
 use Thelia\Tools\URL;
 
 class Axepta extends AbstractPaymentModule
@@ -35,9 +32,6 @@ class Axepta extends AbstractPaymentModule
     public const MINIMUM_AMOUNT = 'minimum_amount';
     public const MAXIMUM_AMOUNT = 'maximum_amount';
 
-    public const TEST_MERCHANT_ID = 'BNP_DEMO_AXEPTA';
-    public const TEST_HMAC = '4n!BmF3_?9oJ2Q*z(iD7q6[RSb5)a]A8';
-    public const TEST_CRYPT_KEY = 'Tc5*2D_xs7B[6E?w';
     public const SEND_CONFIRMATION_MESSAGE_ONLY_IF_PAID = 'send_confirmation_message_only_if_paid';
 
     public function pay(Order $order)
@@ -46,12 +40,6 @@ class Axepta extends AbstractPaymentModule
         $merchantId = self::getConfigValue(self::MERCHANT_ID, null);
         $cryptKey = self::getConfigValue(self::CRYPT_KEY, null);
         $mode = self::getConfigValue(self::MODE, null);
-
-        if ($mode === 'TEST') {
-            $hmac = self::TEST_HMAC;
-            $merchantId = self::TEST_MERCHANT_ID;
-            $cryptKey = self::TEST_CRYPT_KEY;
-        }
 
         $urlAnnulation   = $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans('Vous avez annulé le paiement', [], Axepta::DOMAIN_NAME));
         $urlNotification = URL::getInstance()->absoluteUrl('/axepta/notification');
@@ -105,6 +93,7 @@ class Axepta extends AbstractPaymentModule
         $valid = true;
 
         if (($hmac === null || $merchantId === null || $cryptKey === null) && $mode !== 'TEST') {
+            Tlog::getInstance()->errro("Axepta module is not properly configured, some configuration data are missing.");
             return false;
         }
 

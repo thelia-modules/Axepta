@@ -31,7 +31,7 @@ class NotificationController extends BasePaymentModuleController
 
         $orderRef = $paymentResponse->getrefnr();
         if (null === $order = OrderQuery::create()->filterByRef($orderRef)->findOne()) {
-            $this->redirectToFailurePage($order->getId(), Translator::getInstance()->trans("Failed ti find order reference %ref", ['ref' => $orderRef ], Axepta::DOMAIN_NAME));
+            $this->redirectToFailurePage($order->getId(), Translator::getInstance()->trans("Failed to find order reference %ref", ['ref' => $orderRef ], Axepta::DOMAIN_NAME));
         }
 
         $event = new OrderEvent($order);
