@@ -1,4 +1,6 @@
 <?php
+
 return array(
-    // 'an english string' => 'The displayed english string',
+    'Mode de fonctionnement' => 'Operation Mode',
+    'Vous avez annulé le paiement' => 'You have cancel the payment',
 );
