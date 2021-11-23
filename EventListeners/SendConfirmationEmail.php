@@ -29,7 +29,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Thelia\Action\BaseAction;
 use Thelia\Core\Event\Order\OrderEvent;
 use Thelia\Core\Event\TheliaEvents;
-use Thelia\Mailer\MailerFactory;
 
 /**
  * Axepta payment module

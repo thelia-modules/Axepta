@@ -36,8 +36,6 @@ class NotificationController extends BasePaymentModuleController
 
         $event = new OrderEvent($order);
 
-        $this->getLog()->addInfo("Axcepta response: " . print_r($paymentResponse, 1));
-
         if ($paymentResponse->isValid() && $paymentResponse->isSuccessful()) {
             if (!$order->isPaid()) {
                 $event->setStatus(OrderStatusQuery::getPaidStatus()->getId());
