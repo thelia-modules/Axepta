@@ -3,6 +3,7 @@
 namespace Axepta\Form;
 
 use Axepta\Axepta;
+use Payline\Payline;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -118,6 +119,22 @@ class ConfigurationForm extends BaseForm
                     ]
                 )
             )
+            ->add(
+                Axepta::SEND_CONFIRMATION_MESSAGE_ONLY_IF_PAID,
+                'checkbox',
+                [
+                    'value' => 1,
+                    'required' => false,
+                    'label' => $this->trans('Send order confirmation on payment success'),
+                    'data' => (boolean)(Axepta::getConfigValue(Axepta::SEND_CONFIRMATION_MESSAGE_ONLY_IF_PAID, true)),
+                    'label_attr' => [
+                        'help' => $this->trans(
+                            'If checked, the order confirmation message is sent to the customer only when the payment is successful. The order notification is always sent to the shop administrator'
+                        )
+                    ]
+                ]
+            )
+
         ;
     }
 

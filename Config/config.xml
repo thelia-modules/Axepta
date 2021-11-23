@@ -7,12 +7,12 @@
     <forms>
         <form name="axepta_configuration" class="Axepta\Form\ConfigurationForm" />
     </forms>
-    <!--
+
     <services>
-        <service id="axepta.mail" class="Axepta\EventListener\SendConfirmationEmail">
+        <service id="axepta.send.confirmation_mail" class="Axepta\EventListeners\SendConfirmationEmail">
             <tag name="kernel.event_subscriber"/>
         </service>
-    </services>-->
+    </services>
 
     <hooks>
         <hook id="axepta.configuration.hook" class="Axepta\Hook\HookManager">

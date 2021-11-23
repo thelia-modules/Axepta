@@ -16,6 +16,7 @@ use GuzzleHttp\Client;
 use SmartyRedirection\Smarty\Plugins\Redirect;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Thelia\Core\Translation\Translator;
 use Thelia\Model\Order;
 use Thelia\Module\AbstractPaymentModule;
 use \Axepta\Util\Axepta as AxeptaPayment;
@@ -24,19 +25,20 @@ use Thelia\Tools\URL;
 class Axepta extends AbstractPaymentModule
 {
     /** @var string */
-    const DOMAIN_NAME = 'axepta';
+    public const DOMAIN_NAME = 'axepta';
 
-    const MERCHANT_ID = 'merchant_id';
-    const HMAC = 'hmac';
-    const CRYPT_KEY = 'crypt_key';
-    const MODE = 'run_mode';
-    const ALLOWED_IP_LIST = 'allowed_ip_list';
-    const MINIMUM_AMOUNT = 'minimum_amount';
-    const MAXIMUM_AMOUNT = 'maximum_amount';
+    public const MERCHANT_ID = 'merchant_id';
+    public const HMAC = 'hmac';
+    public const CRYPT_KEY = 'crypt_key';
+    public const MODE = 'run_mode';
+    public const ALLOWED_IP_LIST = 'allowed_ip_list';
+    public const MINIMUM_AMOUNT = 'minimum_amount';
+    public const MAXIMUM_AMOUNT = 'maximum_amount';
 
-    const TEST_MERCHANT_ID = 'BNP_DEMO_AXEPTA';
-    const TEST_HMAC = '4n!BmF3_?9oJ2Q*z(iD7q6[RSb5)a]A8';
-    const TEST_CRYPT_KEY = 'Tc5*2D_xs7B[6E?w';
+    public const TEST_MERCHANT_ID = 'BNP_DEMO_AXEPTA';
+    public const TEST_HMAC = '4n!BmF3_?9oJ2Q*z(iD7q6[RSb5)a]A8';
+    public const TEST_CRYPT_KEY = 'Tc5*2D_xs7B[6E?w';
+    public const SEND_CONFIRMATION_MESSAGE_ONLY_IF_PAID = 'send_confirmation_message_only_if_paid';
 
     public function pay(Order $order)
     {
@@ -45,11 +47,14 @@ class Axepta extends AbstractPaymentModule
         $cryptKey = self::getConfigValue(self::CRYPT_KEY, null);
         $mode = self::getConfigValue(self::MODE, null);
 
-        if ($mode === 'TEST'){
+        if ($mode === 'TEST') {
             $hmac = self::TEST_HMAC;
             $merchantId = self::TEST_MERCHANT_ID;
             $cryptKey = self::TEST_CRYPT_KEY;
         }
+
+        $urlAnnulation   = $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans('Vous avez annulé le paiement', [], Axepta::DOMAIN_NAME));
+        $urlNotification = URL::getInstance()->absoluteUrl('/axepta/notification');
 
         $paymentRequest = new AxeptaPayment($hmac);
         $paymentRequest->setCryptKey($cryptKey);
@@ -60,13 +65,20 @@ class Axepta extends AbstractPaymentModule
         $paymentRequest->setAmount((int)$order->getTotalAmount()*100);
         $paymentRequest->setCurrency($order->getCurrency()->getCode());
         $paymentRequest->setRefNr($order->getRef());
-        $paymentRequest->setURLSuccess(URL::getInstance()->absoluteUrl('/axepta/notification'));
-        $paymentRequest->setURLFailure(URL::getInstance()->absoluteUrl('/axepta/notification'));
-        $paymentRequest->setURLNotify(URL::getInstance()->absoluteUrl('/axepta/notification'));
-        $paymentRequest->setURLBack(URL::getInstance()->absoluteUrl('/order/invoice'));
+        $paymentRequest->setURLSuccess($urlNotification);
+        $paymentRequest->setURLFailure($urlNotification);
+        $paymentRequest->setURLNotify($urlNotification);
+        $paymentRequest->setURLBack($urlAnnulation);
         $paymentRequest->setReponse('encrypt');
-        $paymentRequest->setLanguage('fr');
-        $paymentRequest->setOrderDesc($order->getCustomer()->getFirstname() . ' ' . $order->getCustomer()->getLastname());
+        $paymentRequest->setLanguage($this->getRequest()->getSession()->getLang()->getLocale());
+
+        if ($mode === 'TEST') {
+            // See https://docs.axepta.bnpparibas/display/DOCBNP/Test+environment
+            // In the encrypted data request, use the default parameter OrderDesc with the value "Test:0000". This will give you a correspondingly successful authorization after successful authentication.
+            $paymentRequest->setOrderDesc('Test:0000');
+        } else {
+            $paymentRequest->setOrderDesc($order->getCustomer()->getFirstname() . ' ' . $order->getCustomer()->getLastname());
+        }
 
         $paymentRequest->validate();
 
@@ -78,8 +90,7 @@ class Axepta extends AbstractPaymentModule
             'MerchantID' => $paymentRequest->getMerchantID(),
             'Len' => $len,
             'Data' => $data,
-            'URLBack' => URL::getInstance()->absoluteUrl('/order/invoice'),
-            'URLSuccess' => URL::getInstance()->absoluteUrl('/axepta/notification')
+            'URLBack' => $urlAnnulation
         ];
 
         return $this->generateGatewayFormResponse($order, $paymentRequest->getUrl(), $transmit);
@@ -93,8 +104,7 @@ class Axepta extends AbstractPaymentModule
         $mode = self::getConfigValue(self::MODE, null);
         $valid = true;
 
-        if (($hmac === null || $merchantId === null || $cryptKey === null) && $mode !== 'TEST')
-        {
+        if (($hmac === null || $merchantId === null || $cryptKey === null) && $mode !== 'TEST') {
             return false;
         }
 
@@ -128,5 +138,4 @@ class Axepta extends AbstractPaymentModule
 
         return $order_total > 0 && ($min_amount <= 0 || $order_total >= $min_amount) && ($max_amount <= 0 || $order_total <= $max_amount);
     }
-
 }

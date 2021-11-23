@@ -9,6 +9,8 @@ use Symfony\Component\Routing\Router;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Event\Order\OrderEvent;
 use Thelia\Core\Event\TheliaEvents;
+use Thelia\Core\Translation\Translator;
+use Thelia\Log\Tlog;
 use Thelia\Model\Base\OrderQuery;
 use Thelia\Model\OrderStatusQuery;
 use Thelia\Module\BasePaymentModuleController;
@@ -21,51 +23,38 @@ class NotificationController extends BasePaymentModuleController
         return 'Axepta';
     }
 
-
+    /**
+     * @throws \Propel\Runtime\Exception\PropelException
+     */
     public function notificationAction()
     {
+        $this->getLog()->addInfo("Processing Axcepta notification");
+
         $paymentResponse = new AxeptaPayment(Axepta::getConfigValue(Axepta::HMAC));
         $paymentResponse->setCryptKey(Axepta::getConfigValue(Axepta::CRYPT_KEY));
-        $paymentResponse->setResponse($_GET);
+        $paymentResponse->setResponse($this->getRequest()->query);
 
         $orderRef = $paymentResponse->getrefnr();
-        $order = OrderQuery::create()->filterByRef($orderRef)->findOne();
-
-        $frontOfficeRouter = $this->getContainer()->get('router.front');
+        if (null === $order = OrderQuery::create()->filterByRef($orderRef)->findOne()) {
+            $this->redirectToFailurePage($order->getId(), Translator::getInstance()->trans("Failed ti find order reference %ref", ['ref' => $orderRef ], Axepta::DOMAIN_NAME));
+        }
 
         $event = new OrderEvent($order);
-        if ($paymentResponse->isValid() && $paymentResponse->isSuccessful()) {
 
+        $this->getLog()->addInfo("Axcepta response: " . print_r($paymentResponse, 1));
+
+        if ($paymentResponse->isValid() && $paymentResponse->isSuccessful()) {
             if (!$order->isPaid()) {
                 $event->setStatus(OrderStatusQuery::getPaidStatus()->getId());
                 $this->dispatch(TheliaEvents::ORDER_UPDATE_STATUS, $event);
             }
 
-            return $this->generateRedirect(
-                URL::getInstance()->absoluteUrl(
-                    $frontOfficeRouter->generate(
-                        "order.placed",
-                        ["order_id" => $order->getId()],
-                        Router::ABSOLUTE_URL
-                    )
-                )
-            );
+            $this->redirectToSuccessPage($order->getId());
         }
 
         $event->setStatus(OrderStatusQuery::getCancelledStatus()->getId());
         $this->dispatch(TheliaEvents::ORDER_UPDATE_STATUS, $event);
-        return $this->generateRedirect(
-            URL::getInstance()->absoluteUrl(
-                $frontOfficeRouter->generate(
-                    "order.failed",
-                    [
-                        "order_id" => $order->getId(),
-                        "message" => $paymentResponse->getDescription()
-                    ],
-                    Router::ABSOLUTE_URL
-                )
-            )
-        );
-    }
 
+        $this->redirectToFailurePage($order->getId(), $paymentResponse->getDescription());
+    }
 }
