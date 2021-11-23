@@ -62,7 +62,7 @@ class Axepta extends AbstractPaymentModule
         $paymentRequest->setUrl(AxeptaPayment::PAYSSL);
         $paymentRequest->setMerchantID($merchantId);
         $paymentRequest->setTransID($order->getId());
-        $paymentRequest->setAmount((int)$order->getTotalAmount()*100);
+        $paymentRequest->setAmount((int) ($order->getTotalAmount()*100));
         $paymentRequest->setCurrency($order->getCurrency()->getCode());
         $paymentRequest->setRefNr($order->getRef());
         $paymentRequest->setURLSuccess($urlNotification);
@@ -90,7 +90,7 @@ class Axepta extends AbstractPaymentModule
             'MerchantID' => $paymentRequest->getMerchantID(),
             'Len' => $len,
             'Data' => $data,
-            'URLBack' => $urlAnnulation
+            'URLBack' => $urlAnnulation,
         ];
 
         return $this->generateGatewayFormResponse($order, $paymentRequest->getUrl(), $transmit);

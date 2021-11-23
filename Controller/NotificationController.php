@@ -4,17 +4,12 @@ namespace Axepta\Controller;
 
 use Axepta\Axepta;
 use Axepta\Util\Axepta as AxeptaPayment;
-use OpenApi\Controller\Front\BaseFrontOpenApiController;
-use Symfony\Component\Routing\Router;
-use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Event\Order\OrderEvent;
 use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\Translation\Translator;
-use Thelia\Log\Tlog;
 use Thelia\Model\Base\OrderQuery;
 use Thelia\Model\OrderStatusQuery;
 use Thelia\Module\BasePaymentModuleController;
-use Thelia\Tools\URL;
 
 class NotificationController extends BasePaymentModuleController
 {
@@ -32,7 +27,7 @@ class NotificationController extends BasePaymentModuleController
 
         $paymentResponse = new AxeptaPayment(Axepta::getConfigValue(Axepta::HMAC));
         $paymentResponse->setCryptKey(Axepta::getConfigValue(Axepta::CRYPT_KEY));
-        $paymentResponse->setResponse($this->getRequest()->query);
+        $paymentResponse->setResponse($this->getRequest()->query->all());
 
         $orderRef = $paymentResponse->getrefnr();
         if (null === $order = OrderQuery::create()->filterByRef($orderRef)->findOne()) {
@@ -55,6 +50,6 @@ class NotificationController extends BasePaymentModuleController
         $event->setStatus(OrderStatusQuery::getCancelledStatus()->getId());
         $this->dispatch(TheliaEvents::ORDER_UPDATE_STATUS, $event);
 
-        $this->redirectToFailurePage($order->getId(), $paymentResponse->getDescription());
+        $this->redirectToFailurePage($order->getId(), $paymentResponse->getDescription() . ' ('.$paymentResponse->getCode().')');
     }
 }
