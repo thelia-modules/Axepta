@@ -18,5 +18,8 @@
         <hook id="axepta.configuration.hook" class="Axepta\Hook\HookManager">
             <tag name="hook.event_listener" event="module.configuration" type="back" method="onModuleConfigure" />
         </hook>
+        <hook id="axepta.orderpaymentgateway.hook" class="Axepta\Hook\HookManager">
+            <tag name="hook.event_listener" event="order-payment-gateway.javascript" type="front" method="onOrderPaymentGatewayJavascript" />
+        </hook>
     </hooks>
 </config>

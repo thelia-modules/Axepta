@@ -1,0 +1,16 @@
+{* We shoud use the "GET" method fo rsome fields to be properly processed byt the gateway *}
+{* see https://docs.axepta.bnpparibas/display/DOCBNP/Payment+page#Paymentpage-Howtocallthepaymentmethodsselectionpage? *}
+<script type="text/javascript">
+    jQuery(function($) {
+        var $form = $('#payement_gateway_form');
+
+        $form.attr('method', 'get');
+        $form.submit();
+
+        $('#force-submit-payment-form').click(function(ev) {
+            $form.submit();
+
+            ev.preventDefault();
+        });
+    });
+</script>

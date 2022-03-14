@@ -20,7 +20,7 @@ class Axepta
 
     private $pspURL = self::PAYSSL;
 
-    private $parameters = array();
+    public $parameters = array();
 
     /** Axepta fields **/
     private $pspFields = array(

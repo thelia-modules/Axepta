@@ -17,6 +17,7 @@ use Thelia\Core\Translation\Translator;
 use Thelia\Log\Tlog;
 use Thelia\Model\Order;
 use Thelia\Module\AbstractPaymentModule;
+use Thelia\Tools\MoneyFormat;
 use Thelia\Tools\URL;
 
 class Axepta extends AbstractPaymentModule
@@ -47,9 +48,11 @@ class Axepta extends AbstractPaymentModule
         $paymentRequest = new AxeptaPayment($hmac);
         $paymentRequest->setCryptKey($cryptKey);
 
+        $transId = time().$order->getId();
+
         $paymentRequest->setUrl(AxeptaPayment::PAYSSL);
         $paymentRequest->setMerchantID($merchantId);
-        $paymentRequest->setTransID($order->getId());
+        $paymentRequest->setTransID($transId);
         $paymentRequest->setAmount((int) ($order->getTotalAmount()*100));
         $paymentRequest->setCurrency($order->getCurrency()->getCode());
         $paymentRequest->setRefNr($order->getRef());
@@ -79,7 +82,20 @@ class Axepta extends AbstractPaymentModule
             'Len' => $len,
             'Data' => $data,
             'URLBack' => $urlAnnulation,
+            'CustomField1' => sprintf(
+                "%s, %s",
+                MoneyFormat::getInstance($this->getRequest())->format($order->getTotalAmount(), 2),
+                $order->getCurrency()->getCode()
+            ),
+            'CustomField2' => $order->getRef()
         ];
+
+        TLog::getInstance()->error("Données Axcepta : " . print_r($paymentRequest->parameters, 1));
+        TLog::getInstance()->error("URL Axcepta : " . $paymentRequest->getUrl());
+
+        $order
+            ->setTransactionRef($transId)
+            ->save();
 
         return $this->generateGatewayFormResponse($order, $paymentRequest->getUrl(), $transmit);
     }

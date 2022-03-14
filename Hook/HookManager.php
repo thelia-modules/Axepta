@@ -13,4 +13,11 @@ class HookManager extends BaseHook
             $this->render('module-configuration.html')
         );
     }
+
+    public function onOrderPaymentGatewayJavascript(HookRenderEvent $event)
+    {
+        $event->add(
+            $this->render('hook/order-payment-gateway-javascript.html')
+        );
+    }
 }
