@@ -55,7 +55,7 @@ class Axepta extends AbstractPaymentModule
         $paymentRequest->setTransID($transId);
         $paymentRequest->setAmount((int) ($order->getTotalAmount()*100));
         $paymentRequest->setCurrency($order->getCurrency()->getCode());
-        $paymentRequest->setRefNr($order->getRef());
+        $paymentRequest->setRefNr($order->getId());
         $paymentRequest->setURLSuccess($urlNotification);
         $paymentRequest->setURLFailure($urlNotification);
         $paymentRequest->setURLNotify($urlNotification);
