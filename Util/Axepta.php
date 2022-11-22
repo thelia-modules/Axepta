@@ -24,6 +24,7 @@ class Axepta
 
     /** Axepta fields **/
     private $pspFields = array(
+        'MsgVer',
         'Debug',
         'PayID',
         'TransID',
@@ -84,7 +85,8 @@ class Axepta
         'Plain',
         'Custom',
         'CustomField1','CustomField2','CustomField3','CustomField4','CustomField5','CustomField6','CustomField7',
-        'CustomField8','CustomField9','CustomField10','CustomField11','CustomField12','CustomField13','CustomField14'
+        'CustomField8','CustomField9','CustomField10','CustomField11','CustomField12','CustomField13','CustomField14',
+        'MsgVer'
 
     );
     /** Axepta request hmac fields **/
@@ -102,7 +104,7 @@ class Axepta
         'RefNr','Amount3D','URLSuccess','URLFailure','URLNotify','Response','UserData','Capture','OrderDesc','ReqID',
         'Plain','Custom','expirationTime','AccVerify','RTF','ChDesc',
         'MID','XID','Status','Description','Code','PCNr','CCNr','CCCVC','CCBrand','CCExpiry','TermURL','UserAgent',
-        'HTTPAccept','AboID','ACSXID','MaskedPan','CAVV','ECI','DDD','Type','Plain','Custom'
+        'HTTPAccept','AboID','ACSXID','MaskedPan','CAVV','ECI','DDD','Type','Plain','Custom', 'MsgVer'
         // 'CustomField1','CustomField2','CustomField3','CustomField4','CustomField5','CustomField6','CustomField7',
         // 'CustomField8','CustomField9','CustomField10','CustomField11','CustomField12','CustomField13','CustomField14'
     );
@@ -309,7 +311,6 @@ class Axepta
                 return;
             }
         }
-
         if(substr($method, 0, 3) == 'get') {
             //           $field = lcfirst(substr($method, 3));
             $field = substr($method, 3);

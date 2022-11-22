@@ -50,6 +50,7 @@ class Axepta extends AbstractPaymentModule
 
         $transId = time().$order->getId();
 
+        $paymentRequest->setMsgVer('2.0');
         $paymentRequest->setUrl(AxeptaPayment::PAYSSL);
         $paymentRequest->setMerchantID($merchantId);
         $paymentRequest->setTransID($transId);
