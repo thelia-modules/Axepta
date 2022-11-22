@@ -33,6 +33,9 @@
                             {render_form_field field="merchant_id"}
                             {render_form_field field="hmac"}
                             {render_form_field field="crypt_key"}
+                            <div class="alert alert-info">
+                                {intl l='When in test mode, <a target="_new" href="https://docs.axepta.bnpparibas/display/DOCBNP/Test+Cards+-+Authentication">use these test cards</a> to test the payment.' d='axepta.bo.default'}
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <p class="title title-without-tabs">{intl d='axepta.bo.default' l="Payment configuration"}</p>

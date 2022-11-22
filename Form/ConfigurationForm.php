@@ -39,7 +39,7 @@ class ConfigurationForm extends BaseForm
                     'constraints' => [new NotBlank()],
                     'required' => true,
                     'label' => $this->trans('Merchant ID'),
-                    'data' => Axepta::getConfigValue(Axepta::MERCHANT_ID, ''),
+                    'data' => Axepta::getConfigValue(Axepta::MERCHANT_ID, 'BNP_DEMO_AXEPTA'),
                 ]
             )
             ->add(
@@ -49,7 +49,7 @@ class ConfigurationForm extends BaseForm
                     'constraints' => [new NotBlank()],
                     'required' => true,
                     'label' => $this->trans('HMAC key'),
-                    'data' => Axepta::getConfigValue(Axepta::HMAC, ''),
+                    'data' => Axepta::getConfigValue(Axepta::HMAC, '4n!BmF3_?9oJ2Q*z(iD7q6[RSb5)a]A8'),
                 ]
             )
             ->add(
@@ -59,7 +59,7 @@ class ConfigurationForm extends BaseForm
                     'constraints' => [new NotBlank()],
                     'required' => true,
                     'label' => $this->trans('Blowfish encryption key'),
-                    'data' => Axepta::getConfigValue(Axepta::CRYPT_KEY, ''),
+                    'data' => Axepta::getConfigValue(Axepta::CRYPT_KEY, 'Tc5*2D_xs7B[6E?w'),
                 ]
             )
             ->add(
