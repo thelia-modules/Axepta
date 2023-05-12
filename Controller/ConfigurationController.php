@@ -3,22 +3,25 @@
 namespace Axepta\Controller;
 
 use Axepta\Axepta;
+use Axepta\Form\ConfigurationForm;
 use Thelia\Controller\Admin\BaseAdminController;
+use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
+use Thelia\Core\Translation\Translator;
 use Thelia\Form\Exception\FormValidationException;
 use Thelia\Tools\URL;
 
 class ConfigurationController extends BaseAdminController
 {
-    public function configure()
+    public function configure(Request $request)
     {
         if (null !== $response = $this->checkAuth(AdminResources::MODULE, 'Axepta', AccessManager::UPDATE)) {
             return $response;
         }
 
         // Create the Form from the request
-        $configurationForm = $this->createForm('axepta_configuration');
+        $configurationForm = $this->createForm(ConfigurationForm::getName());
 
         try {
             // Check the form against constraints violations
@@ -43,7 +46,7 @@ class ConfigurationController extends BaseAdminController
             );
 
             // Redirect to the success URL,
-            if ($this->getRequest()->get('save_mode') === 'stay') {
+            if ($request->get('save_mode') === 'stay') {
                 // If we have to stay on the same page, redisplay the configuration page/
                 $route = '/admin/module/Axepta';
             } else {
@@ -67,7 +70,7 @@ class ConfigurationController extends BaseAdminController
         // just redisplay the same template.
         // Set up the Form error context, to make error information available in the template.
         $this->setupFormErrorContext(
-            $this->getTranslator()->trans("Axepta configuration", [], Axepta::DOMAIN_NAME),
+            Translator::getInstance()->trans("Axepta configuration", [], Axepta::DOMAIN_NAME),
             $error_msg,
             $configurationForm,
             $ex

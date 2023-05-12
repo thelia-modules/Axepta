@@ -68,7 +68,7 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
         $order = $event->getOrder();
 
         if ($order->isPaid() && $order->getPaymentModuleId() === Axepta::getModuleId()) {
-            $dispatcher->dispatch(TheliaEvents::ORDER_SEND_CONFIRMATION_EMAIL, $event);
+            $dispatcher->dispatch($event, TheliaEvents::ORDER_SEND_CONFIRMATION_EMAIL);
         }
     }
 

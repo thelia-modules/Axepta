@@ -13,6 +13,7 @@
 namespace Axepta;
 
 use Axepta\Util\Axepta as AxeptaPayment;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Thelia\Core\Translation\Translator;
 use Thelia\Log\Tlog;
 use Thelia\Model\Order;
@@ -43,7 +44,7 @@ class Axepta extends AbstractPaymentModule
         $mode = self::getConfigValue(self::MODE, null);
 
         $urlAnnulation   = $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans('Vous avez annulé le paiement', [], Axepta::DOMAIN_NAME));
-        $urlNotification = URL::getInstance()->absoluteUrl('/axepta/notification');
+        $urlNotification = URL::getInstance()->absoluteUrl(path:'/axepta/notification');
 
         $paymentRequest = new AxeptaPayment($hmac);
         $paymentRequest->setCryptKey($cryptKey);
@@ -110,7 +111,7 @@ class Axepta extends AbstractPaymentModule
         $valid = true;
 
         if (($hmac === null || $merchantId === null || $cryptKey === null) && $mode !== 'TEST') {
-            Tlog::getInstance()->errro("Axepta module is not properly configured, some configuration data are missing.");
+            Tlog::getInstance()->error("Axepta module is not properly configured, some configuration data are missing.");
             return false;
         }
 
@@ -143,5 +144,13 @@ class Axepta extends AbstractPaymentModule
         $max_amount = self::getConfigValue($max, 0);
 
         return $order_total > 0 && ($min_amount <= 0 || $order_total >= $min_amount) && ($max_amount <= 0 || $order_total <= $max_amount);
+    }
+
+    public static function configureServices(ServicesConfigurator $servicesConfigurator): void
+    {
+        $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
+            ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
+            ->autowire(true)
+            ->autoconfigure(true);
     }
 }

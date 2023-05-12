@@ -170,7 +170,9 @@ class Axepta
                 $blowfishString .= $key.'='.$value.'&';
             }
         }
+
         $blowfishString = rtrim($blowfishString,'&');
+
         $this->parameters['Debug'] = $blowfishString;
         $this->parameters['Len'] = strlen($blowfishString);
         $this->parameters[self::DATA_FIELD] = bin2hex($this->encrypt($blowfishString,$this->cryptKey));
@@ -193,6 +195,7 @@ class Axepta
 
         if ($m = strlen($data)%8)
             $data .= str_repeat("\x00",  8 - $m);
+
         if (function_exists('mcrypt_encrypt'))
             $val = mcrypt_encrypt(MCRYPT_BLOWFISH, $key, $data, MCRYPT_MODE_ECB);
         else

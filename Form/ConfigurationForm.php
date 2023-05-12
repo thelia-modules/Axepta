@@ -3,7 +3,7 @@
 namespace Axepta\Form;
 
 use Axepta\Axepta;
-use Payline\Payline;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -25,8 +25,8 @@ class ConfigurationForm extends BaseForm
                     'constraints' => [new NotBlank()],
                     'required' => true,
                     'choices' => [
-                        'TEST' => 'Test',
-                        'PRODUCTION' => 'Production',
+                        'Test' => 'TEST',
+                        'Production' => 'PRODUCTION',
                     ],
                     'label' => $this->trans('Mode de fonctionnement', []),
                     'data' => Axepta::getConfigValue(Axepta::MODE),
@@ -121,7 +121,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 Axepta::SEND_CONFIRMATION_MESSAGE_ONLY_IF_PAID,
-                'checkbox',
+                CheckboxType::class,
                 [
                     'value' => 1,
                     'required' => false,
@@ -138,7 +138,7 @@ class ConfigurationForm extends BaseForm
         ;
     }
 
-    public function getName()
+    public static function getName()
     {
         return 'axepta_configuration';
     }

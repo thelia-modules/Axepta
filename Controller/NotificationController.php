@@ -4,8 +4,10 @@ namespace Axepta\Controller;
 
 use Axepta\Axepta;
 use Axepta\Util\Axepta as AxeptaPayment;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Thelia\Core\Event\Order\OrderEvent;
 use Thelia\Core\Event\TheliaEvents;
+use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\Translation\Translator;
 use Thelia\Exception\TheliaProcessException;
 use Thelia\Model\Base\OrderQuery;
@@ -22,18 +24,25 @@ class NotificationController extends BasePaymentModuleController
     /**
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function notificationAction()
+    public function notificationAction(Request $request, EventDispatcherInterface $dispatcher)
     {
         $this->getLog()->addInfo("Processing Axcepta notification");
 
         $paymentResponse = new AxeptaPayment(Axepta::getConfigValue(Axepta::HMAC));
         $paymentResponse->setCryptKey(Axepta::getConfigValue(Axepta::CRYPT_KEY));
-        // $paymentResponse->setResponse($this->getRequest()->query->all());
-        $paymentResponse->setResponse($this->getRequest()->request->all());
+
+        $parameters = $request->request->all();
+
+        if (!isset($parameters[AxeptaPayment::DATA_FIELD])) {
+            $parameters = $request->query->all();
+        }
+
+        $paymentResponse->setResponse($parameters);
 
         $this->getLog()->addError("Notification parameters: ".print_r($paymentResponse->parameters, 1));
 
         $transId = $paymentResponse->getTransID();
+
 
         if (null === $order = OrderQuery::create()->filterByTransactionRef($transId)->findOne()) {
             $this->getLog()->addInfo("Failed to fin order for transaction ID $transId. Aborting.");
@@ -52,7 +61,7 @@ class NotificationController extends BasePaymentModuleController
             if (!$order->isPaid()) {
                 $this->getLog()->addInfo("Setting order status to 'paid'.");
                 $event->setStatus(OrderStatusQuery::getPaidStatus()->getId());
-                $this->dispatch(TheliaEvents::ORDER_UPDATE_STATUS, $event);
+                $dispatcher->dispatch($event, TheliaEvents::ORDER_UPDATE_STATUS);
             }
 
             $this->redirectToSuccessPage($order->getId());
@@ -61,7 +70,7 @@ class NotificationController extends BasePaymentModuleController
         $this->getLog()->addInfo("Payment failed, cancelling order " . $order->getRef());
 
         $event->setStatus(OrderStatusQuery::getCancelledStatus()->getId());
-        $this->dispatch(TheliaEvents::ORDER_UPDATE_STATUS, $event);
+        $dispatcher->dispatch($event,TheliaEvents::ORDER_UPDATE_STATUS);
 
         $this->getLog()->addInfo("Failure cause:" . $paymentResponse->getDescription() . ' (' . $paymentResponse->getCode());
         $this->redirectToFailurePage($order->getId(), $paymentResponse->getDescription() . ' (' . $paymentResponse->getCode() . ')');
