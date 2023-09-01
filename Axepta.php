@@ -43,7 +43,7 @@ class Axepta extends AbstractPaymentModule
         $cryptKey = self::getConfigValue(self::CRYPT_KEY, null);
         $mode = self::getConfigValue(self::MODE, null);
 
-        $urlAnnulation   = $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans('Vous avez annulé le paiement', [], Axepta::DOMAIN_NAME));
+        $urlAnnulation   = URL::getInstance()->absoluteUrl("/axepta/cancel/" . $order->getId());
         $urlNotification = URL::getInstance()->absoluteUrl(path:'/axepta/notification');
 
         $paymentRequest = new AxeptaPayment($hmac);

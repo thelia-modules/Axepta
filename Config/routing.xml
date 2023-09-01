@@ -11,4 +11,8 @@
     <route id="axepta.notification_url" path="/axepta/notification">
         <default key="_controller">Axepta\Controller\NotificationController::notificationAction</default>
     </route>
+
+    <route id="axepta.cancel_url" path="/axepta/cancel/{orderId}">
+        <default key="_controller">Axepta\Controller\NotificationController::cancelPaymentAction</default>
+    </route>
 </routes>
