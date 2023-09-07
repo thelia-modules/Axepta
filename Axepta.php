@@ -33,6 +33,7 @@ class Axepta extends AbstractPaymentModule
     public const ALLOWED_IP_LIST = 'allowed_ip_list';
     public const MINIMUM_AMOUNT = 'minimum_amount';
     public const MAXIMUM_AMOUNT = 'maximum_amount';
+    const LOG_AXCEPTA_RESPONSE = 'log_axcepta_response';
 
     public const SEND_CONFIRMATION_MESSAGE_ONLY_IF_PAID = 'send_confirmation_message_only_if_paid';
 

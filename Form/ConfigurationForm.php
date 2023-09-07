@@ -134,6 +134,21 @@ class ConfigurationForm extends BaseForm
                     ]
                 ]
             )
+            ->add(
+                Axepta::LOG_AXCEPTA_RESPONSE,
+                CheckboxType::class,
+                [
+                    'value' => 1,
+                    'required' => false,
+                    'label' => $this->trans('Log Axcepta request content (for debug purposes only)'),
+                    'data' => (boolean)(Axepta::getConfigValue(Axepta::LOG_AXCEPTA_RESPONSE, false)),
+                    'label_attr' => [
+                        'help' => $this->trans(
+                            'If checked, Axcepta request content will be logged in Thelia log file. Warning, this data may contain confidential information'
+                        )
+                    ]
+                ]
+            )
 
         ;
     }

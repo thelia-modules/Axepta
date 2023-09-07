@@ -32,10 +32,6 @@ class NotificationController extends BasePaymentModuleController
     }
 
     /**
-     * @param $orderId
-     * @param EventDispatcherInterface $dispatcher
-     * @param Request $request
-     * @return void
      * @throws \Exception
      */
     public function cancelPaymentAction($orderId, EventDispatcherInterface $dispatcher, Request $request): void
@@ -79,7 +75,9 @@ class NotificationController extends BasePaymentModuleController
 
         $paymentResponse->setResponse($parameters);
 
-        $this->getLog()->addError('Notification parameters: '.print_r($paymentResponse->parameters, 1));
+        if ((bool) Axepta::getConfigValue(Axepta::LOG_AXCEPTA_RESPONSE, false)) {
+            $this->getLog()->addError('Notification parameters: '.print_r($paymentResponse->parameters, 1));
+        }
 
         $transId = $paymentResponse->getTransID();
 
@@ -91,16 +89,20 @@ class NotificationController extends BasePaymentModuleController
             );
         }
 
-        $this->getLog()->addInfo('Processing payment of order '.$order->getRef());
-
         $event = new OrderEvent($order);
 
         if ($paymentResponse->isValid() && $paymentResponse->isSuccessful()) {
-            $this->getLog()->addInfo('Payment of order '.$order->getRef().' is successful.');
             if (!$order->isPaid()) {
-                $this->getLog()->addInfo("Setting order status to 'paid'.");
+                $this->getLog()->addInfo('Payment of order '.$order->getRef()." is successful, setting order status to 'paid'");
                 $event->setStatus(OrderStatusQuery::getPaidStatus()->getId());
                 $dispatcher->dispatch($event, TheliaEvents::ORDER_UPDATE_STATUS);
+            } else {
+                $this->getLog()->addInfo('Order '.$order->getRef()." is already in 'paid' status");
+            }
+
+            // Just return if no customer is connected.
+            if (null === $request->getSession()?->getCustomerUser()) {
+                return;
             }
 
             $this->redirectToSuccessPage($order->getId());
@@ -112,6 +114,12 @@ class NotificationController extends BasePaymentModuleController
         $dispatcher->dispatch($event, TheliaEvents::ORDER_UPDATE_STATUS);
 
         $this->getLog()->addInfo('Failure cause:'.$paymentResponse->getDescription().' ('.$paymentResponse->getCode());
+
+        // Just return if no customer is connected.
+        if (null === $request->getSession()?->getCustomerUser()) {
+            return;
+        }
+
         $this->redirectToFailurePage($order->getId(), $paymentResponse->getDescription().' ('.$paymentResponse->getCode().')');
     }
 }
