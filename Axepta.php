@@ -93,9 +93,6 @@ class Axepta extends AbstractPaymentModule
             'CustomField2' => $order->getRef()
         ];
 
-        TLog::getInstance()->error("Données Axcepta : " . print_r($paymentRequest->parameters, 1));
-        TLog::getInstance()->error("URL Axcepta : " . $paymentRequest->getUrl());
-
         $order
             ->setTransactionRef($transId)
             ->save();
