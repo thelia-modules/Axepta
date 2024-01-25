@@ -14,4 +14,8 @@ return array(
     'Minimum order total' => 'Montant minimum de commande',
     'Minimum order total in the default currency for which this payment method is available. Enter 0 for no minimum' => 'Montant minimum dans la devise par défaut pour proposer ce moyen de paiement. Laisser 0 pour ne pas fixer de minimum',
     'Send order confirmation on payment success' => 'Confirmation de commande si le paiement réussit',
+    'Active payment feature' => 'Fonctionnalité de paiement active',
+    'Unique payment' => 'Paiement unique',
+    'Fixed amount subscription' => 'Abonnement à montant fixe',
+    'Variable amount subscription' => 'Abonnement à montant variable',
 );

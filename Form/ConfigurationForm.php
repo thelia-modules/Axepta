@@ -135,6 +135,22 @@ class ConfigurationForm extends BaseForm
                 ]
             )
             ->add(
+                Axepta::PAYMENT_FEATURE,
+                ChoiceType::class,
+                [
+                    'constraints' => [new NotBlank()],
+                    'required' => true,
+                    'choices' => [
+                        $this->trans('Unique payment') => Axepta::PAYMENT_FEATURE_UNIQUE,
+                        // Not yet supported
+                        // $this->trans('Fixed amount subscription') => Axepta::PAYMENT_FEATURE_FIXED_AMOUNT_SUBSCRIPTION,
+                        $this->trans('Variable amount subscription') => Axepta::PAYMENT_FEATURE_VARIABLE_AMOUNT_SUBSCRIPTION,
+                    ],
+                    'label' => $this->trans('Active payment feature'),
+                    'data' => Axepta::getConfigValue(Axepta::PAYMENT_FEATURE),
+                ]
+            )
+            ->add(
                 Axepta::LOG_AXCEPTA_RESPONSE,
                 CheckboxType::class,
                 [
@@ -160,6 +176,6 @@ class ConfigurationForm extends BaseForm
 
     protected function trans($str, $params = [])
     {
-        return Translator::getInstance()->trans($str, $params, Axepta::DOMAIN_NAME);
+        return Translator::getInstance()?->trans($str, $params, Axepta::DOMAIN_NAME);
     }
 }

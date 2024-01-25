@@ -1,5 +1,7 @@
 <?php
 
+use Axepta\Axepta;
+
 return array(
     'Access to Axepta Platform' => 'Accès a Axepta',
     'Axepta Configuration' => 'Configuration d\'Axepta',

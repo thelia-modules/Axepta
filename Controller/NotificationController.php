@@ -13,11 +13,16 @@
 namespace Axepta\Controller;
 
 use Axepta\Axepta;
+use Axepta\Model\AxceptaScheme;
+use Axepta\Model\AxceptaSchemeQuery;
+use Axepta\Model\AxceptaSchemes;
+use Axepta\Service\PaymentService;
 use Axepta\Util\Axepta as AxeptaPayment;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Thelia\Core\Event\Order\OrderEvent;
 use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\HttpFoundation\Request;
+use Thelia\Core\HttpFoundation\Response;
 use Thelia\Core\Translation\Translator;
 use Thelia\Exception\TheliaProcessException;
 use Thelia\Model\OrderQuery;
@@ -60,12 +65,9 @@ class NotificationController extends BasePaymentModuleController
     /**
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function notificationAction(Request $request, EventDispatcherInterface $dispatcher): void
+    public function notificationAction(Request $request, PaymentService $paymentService): void
     {
         $this->getLog()->addInfo('Processing Axcepta notification');
-
-        $paymentResponse = new AxeptaPayment(Axepta::getConfigValue(Axepta::HMAC));
-        $paymentResponse->setCryptKey(Axepta::getConfigValue(Axepta::CRYPT_KEY));
 
         $parameters = $request->request->all();
 
@@ -73,51 +75,15 @@ class NotificationController extends BasePaymentModuleController
             $parameters = $request->query->all();
         }
 
-        $paymentResponse->setResponse($parameters);
+        $action = $paymentService->processNotification($parameters, $this->getLog(), $order, $paymentResponse);
 
-        if ((bool) Axepta::getConfigValue(Axepta::LOG_AXCEPTA_RESPONSE, false)) {
-            $this->getLog()->addError('Notification parameters: '.print_r($paymentResponse->parameters, 1));
-        }
-
-        $transId = $paymentResponse->getTransID();
-
-        if (null === $order = OrderQuery::create()->filterByTransactionRef($transId)->findOne()) {
-            $this->getLog()->addInfo("Failed to fin order for transaction ID $transId. Aborting.");
-
-            throw new TheliaProcessException(
-                Translator::getInstance()->trans('Failed to find order for transaction ID %id', ['id' => $transId], Axepta::DOMAIN_NAME)
-            );
-        }
-
-        $event = new OrderEvent($order);
-
-        if ($paymentResponse->isValid() && $paymentResponse->isSuccessful()) {
-            if (!$order->isPaid()) {
-                $this->getLog()->addInfo('Payment of order '.$order->getRef()." is successful, setting order status to 'paid'");
-                $event->setStatus(OrderStatusQuery::getPaidStatus()->getId());
-                $dispatcher->dispatch($event, TheliaEvents::ORDER_UPDATE_STATUS);
-            } else {
-                $this->getLog()->addInfo('Order '.$order->getRef()." is already in 'paid' status");
-            }
-
-            // Just return if no customer is connected.
-            if (null === $request->getSession()?->getCustomerUser()) {
-                return;
-            }
-
-            $this->redirectToSuccessPage($order->getId());
-        }
-
-        $this->getLog()->addInfo('Payment failed, cancelling order '.$order->getRef());
-
-        $event->setStatus(OrderStatusQuery::getCancelledStatus()->getId());
-        $dispatcher->dispatch($event, TheliaEvents::ORDER_UPDATE_STATUS);
-
-        $this->getLog()->addInfo('Failure cause:'.$paymentResponse->getDescription().' ('.$paymentResponse->getCode());
-
-        // Just return if no customer is connected.
+        // No redirection if no user is connected (IPN call)
         if (null === $request->getSession()?->getCustomerUser()) {
             return;
+        }
+
+        if ($action === 'success') {
+            $this->redirectToSuccessPage($order->getId());
         }
 
         $this->redirectToFailurePage($order->getId(), $paymentResponse->getDescription().' ('.$paymentResponse->getCode().')');
