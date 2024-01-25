@@ -13,19 +13,13 @@
 namespace Axepta\Controller;
 
 use Axepta\Axepta;
-use Axepta\Model\AxceptaScheme;
-use Axepta\Model\AxceptaSchemeQuery;
-use Axepta\Model\AxceptaSchemes;
 use Axepta\Service\PaymentService;
 use Axepta\Util\Axepta as AxeptaPayment;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Thelia\Core\Event\Order\OrderEvent;
 use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\HttpFoundation\Request;
-use Thelia\Core\HttpFoundation\Response;
 use Thelia\Core\Translation\Translator;
-use Thelia\Exception\TheliaProcessException;
-use Thelia\Model\OrderQuery;
 use Thelia\Model\OrderStatusQuery;
 use Thelia\Module\BasePaymentModuleController;
 

@@ -19,6 +19,12 @@
             <name>Nicolas Barbey</name>
             <email>nbarbey@openstudio.fr</email>
         </author>
+        <author>
+          <name>Franck Allimant</name>
+          <company>OpenStudio</company>
+          <email>fallimant@openstudio.fr</email>
+          <website>www.openstudio.fr</website>
+        </author>
     </authors>
     <type>classic</type>
     <thelia>2.4.0</thelia>

@@ -54,6 +54,15 @@ class CreatePayment extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if (! Axepta::isSubscriptionMode()) {
+            $output->writeln(
+                '<error>This command is intended for use when the subscription payment feature is enabled.'
+                       .'Subscription feature is not currently activated. ($feat is activated)</error>'
+            );
+
+            return Command::INVALID;
+        }
+
         $this->initRequest();
 
         $orderRef = $input->getArgument('original_order_ref');
@@ -62,7 +71,7 @@ class CreatePayment extends ContainerAwareCommand
             throw new TheliaProcessException("Unknown order $orderRef");
         }
 
-        $newOrderRef = $input->getArgument('original_order_ref');
+        $newOrderRef = $input->getArgument('new_order_ref');
 
         if (null === $newOrder = OrderQuery::create()->findOneByRef($newOrderRef)) {
             throw new TheliaProcessException("Unknown order $newOrderRef");
@@ -72,10 +81,12 @@ class CreatePayment extends ContainerAwareCommand
 
         $this->getDispatcher()->dispatch($event, Axepta::AXCEPTA_CREATE_PAYMENT_EVENT);
 
-        $output->writeln('Payment status : '. ($event->isSuccess() ? 'success' : 'failure'));
+        $output->writeln('Payment status : '.($event->isSuccess() ? 'success' : 'failure'));
 
-        if (! $event->isSuccess()) {
-            $output->writeln('<error> : '. $event->getErrorMessage() .'</error>');
+        if (!$event->isSuccess()) {
+            $output->writeln('<error> : '.$event->getErrorMessage().'</error>');
+
+            return Command::FAILURE;
         }
 
         return Command::SUCCESS;

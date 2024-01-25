@@ -65,8 +65,10 @@ class SubscriptionPaymentListener implements EventSubscriberInterface
         try {
             $result = $this->sendPaymentRequest($data);
 
+            parse_str($result, $resultArray);
+
             $action = $this->paymentService->processNotification(
-                explode('&', $result),
+                $resultArray,
                 Tlog::getInstance(),
                 $order,
                 $paymentResponse
@@ -97,15 +99,12 @@ class SubscriptionPaymentListener implements EventSubscriberInterface
     {
         $ch = curl_init();
 
-        $postFields = implode('&', $data);
+        $postData = http_build_query($data);
 
         curl_setopt($ch, \CURLOPT_URL, AxeptaPayment::DIRECT);
-        curl_setopt($ch, \CURLOPT_HTTP_VERSION, 1.0);
         curl_setopt($ch, \CURLOPT_POST, 1);
-        curl_setopt($ch, \CURLOPT_POSTFIELDS, $postFields);
-        curl_setopt($ch, \CURLOPT_HEADER, 0);
+        curl_setopt($ch, \CURLOPT_POSTFIELDS, $postData);
         curl_setopt($ch, \CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, \CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, \CURLOPT_TIMEOUT, 120);
         curl_setopt($ch, \CURLOPT_FAILONERROR, 1);
 

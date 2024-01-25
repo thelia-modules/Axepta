@@ -101,17 +101,6 @@ class PaymentService
 
             $paymentRequest->setCredentialOnFile(base64_encode(json_encode($cof)));
 
-/*
-            if (!$schemeData) {
-                $paymentRequest->setThreeDSPolicy(
-                    base64_encode(
-                        json_encode([
-                            'challengePreference' => 'mandateChallenge',
-                        ], \JSON_THROW_ON_ERROR)
-                    )
-                );
-            }
-*/
             if ($schemeData) {
                 $paymentRequest->setSchemeReferenceID($schemeData->getSchemeReferenceId());
 
@@ -134,8 +123,6 @@ class PaymentService
                 'Test:0000' :
                 $order->getCustomer()->getFirstname().' '.$order->getCustomer()->getLastname()
         );
-
-        $paymentRequest->validate();
 
         $data = $paymentRequest->getBfishCrypt();
         $len = $paymentRequest->getLen();
@@ -191,13 +178,15 @@ class PaymentService
                 $event->setStatus(OrderStatusQuery::getPaidStatus()?->getId());
                 $this->dispatcher->dispatch($event, TheliaEvents::ORDER_UPDATE_STATUS);
 
-                // Store recurring payment data
-                if (isset($paymentResponse->parameters['schemeReferenceID'])
+                // Store recurring payment data for subscriptions
+                if (isset($paymentResponse->parameters['schemeReferenceID'], $paymentResponse->parameters['card'])
                     &&
-                    isset($paymentResponse->parameters['card'])
+                    Axepta::isSubscriptionMode()
                 ) {
                     $schemeId = $paymentResponse->parameters['schemeReferenceID'];
 
+                    // Store SchemeReferenceId the first time we get it. See transaction chaining here
+                    // https://docs.axepta.bnpparibas/pages/viewpage.action?pageId=41585166#Recurringcardpayments(Subscription)-Principles
                     if (null === AxceptaSchemeQuery::create()->findOneBySchemeReferenceId($schemeId)) {
                         (new AxceptaScheme())
                             ->setOrderId($order->getId())

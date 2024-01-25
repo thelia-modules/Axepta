@@ -15,8 +15,7 @@ namespace Axepta\Util;
 class Axepta extends Blowfish
 {
     public const PAYSSL = 'https://paymentpage.axepta.bnpparibas/payssl.aspx';
-    //public const DIRECT = 'https://paymentpage.axepta.bnpparibas/direct.aspx';
-    public const DIRECT = 'https://www.computop-paygate.com/direct.aspx';
+    public const DIRECT = 'https://paymentpage.axepta.bnpparibas/direct.aspx';
 
     public const DIRECT3D = 'https://paymentpage.axepta.bnpparibas/direct3d.aspx';
     public const CAPTURE = 'https://paymentpage.axepta.bnpparibas/capture.aspx';

@@ -47,12 +47,25 @@ class Axepta extends AbstractPaymentModule
     public const PAYMENT_FEATURE = 'active_payment_feature';
 
     public const PAYMENT_FEATURE_UNIQUE = 'unique';
-    public const PAYMENT_FEATURE_FIXED_AMOUNT_SUBSCRIPTION = 'fas';
-    public const PAYMENT_FEATURE_VARIABLE_AMOUNT_SUBSCRIPTION = 'vas';
+    public const PAYMENT_FEATURE_FIXED_AMOUNT_SUBSCRIPTION = 'fixed_subscription';
+    public const PAYMENT_FEATURE_VARIABLE_AMOUNT_SUBSCRIPTION = 'variable_subscription';
 
     public const SEND_CONFIRMATION_MESSAGE_ONLY_IF_PAID = 'send_confirmation_message_only_if_paid';
 
     public const AXCEPTA_CREATE_PAYMENT_EVENT = 'axepta.axcepta_create_payment_event';
+
+    public static function isSubscriptionMode() : bool
+    {
+        return in_array(self::getConfigValue(Axepta::PAYMENT_FEATURE), [
+            self::PAYMENT_FEATURE_VARIABLE_AMOUNT_SUBSCRIPTION,
+            self::PAYMENT_FEATURE_FIXED_AMOUNT_SUBSCRIPTION
+        ], true);
+    }
+
+    public static function isUniqueMode() : bool
+    {
+        return self::getConfigValue(Axepta::PAYMENT_FEATURE) === self::PAYMENT_FEATURE_UNIQUE;
+    }
 
     /**
      * @throws \JsonException
