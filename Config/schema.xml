@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database defaultIdMethod="native" name="TheliaMain"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../../vendor/thelia/propel/resources/xsd/database.xsd" >
+
+    <table name="axcepta_scheme" namespace="Axepta\Model">
+        <column autoIncrement="true" name="id" primaryKey="true" required="true" type="INTEGER" />
+        <column name="order_id" type="INTEGER" />
+        <column name="name" type="VARCHAR" required="true"  size="45" />
+        <column name="number" type="VARCHAR" required="true"  size="19" />
+        <column name="brand" type="VARCHAR" required="true"  size="33" />
+        <column name="expiry_date" type="VARCHAR" required="true"  size="6" />
+        <column name="scheme_reference_id" type="VARCHAR" required="true"  size="255" />
+
+        <behavior name="timestampable" />
+    </table>
+
+  <external-schema filename="local/config/schema.xml" referenceOnly="true" />
+</database>

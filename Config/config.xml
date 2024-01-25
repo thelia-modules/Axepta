@@ -4,14 +4,11 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
 
-    <forms>
-        <form name="axepta_configuration" class="Axepta\Form\ConfigurationForm" />
-    </forms>
-
     <services>
-        <service id="axepta.send.confirmation_mail" class="Axepta\EventListeners\SendConfirmationEmail">
-            <tag name="kernel.event_subscriber"/>
-        </service>
+      <service id="axepta_payment_service" alias="Axepta\Service\PaymentService" public="true">
+        <argument type="service" id="request_stack"/>
+        <argument type="service" id="event_dispatcher"/>
+      </service>
     </services>
 
     <hooks>
