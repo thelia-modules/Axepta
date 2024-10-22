@@ -31,7 +31,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\Event\Order\OrderEvent;
 use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\Translation\Translator;
 use Thelia\Exception\TheliaProcessException;
 use Thelia\Log\Tlog;
@@ -79,6 +78,13 @@ class PaymentService
         $paymentRequest->setURLBack($urlAnnulation);
         $paymentRequest->setReponse('encrypt');
         $paymentRequest->setLanguage($this->requestStack->getCurrentRequest()?->getSession()->getLang()->getLocale());
+
+        // Customer info mail or mobile phone or landphone required
+        $btc = [
+            "email" => $order->getCustomer()->getEmail(),
+        ];
+
+        $paymentRequest->setBillToCustomer(base64_encode(json_encode($btc)));
 
         // Recurring payment request
         $feature = Axepta::getConfigValue(Axepta::PAYMENT_FEATURE, Axepta::PAYMENT_FEATURE_UNIQUE);

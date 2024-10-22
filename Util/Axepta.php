@@ -95,7 +95,7 @@ class Axepta extends Blowfish
         'CustomField1', 'CustomField2', 'CustomField3', 'CustomField4', 'CustomField5', 'CustomField6', 'CustomField7',
         'CustomField8', 'CustomField9', 'CustomField10', 'CustomField11', 'CustomField12', 'CustomField13', 'CustomField14',
         'MsgVer',
-        'credentialOnFile', 'threeDSPolicy', 'schemeReferenceID', 'Card',
+        'billToCustomer', 'credentialOnFile', 'threeDSPolicy', 'schemeReferenceID', 'Card',
     ];
     /** Axepta request hmac fields **/
     private $QHMACFields = [
@@ -113,7 +113,7 @@ class Axepta extends Blowfish
         'Plain', 'Custom', 'expirationTime', 'AccVerify', 'RTF', 'ChDesc',
         'MID', 'XID', 'Status', 'Description', 'Code', 'PCNr', 'CCNr', 'CCCVC', 'CCBrand', 'CCExpiry', 'TermURL', 'UserAgent',
         'HTTPAccept', 'AboID', 'ACSXID', 'MaskedPan', 'CAVV', 'ECI', 'DDD', 'Type', 'Plain', 'Custom', 'MsgVer',
-        'credentialOnFile', 'threeDSPolicy', 'schemeReferenceID', 'Card'
+        'billToCustomer', 'credentialOnFile', 'threeDSPolicy', 'schemeReferenceID', 'Card'
         // 'CustomField1','CustomField2','CustomField3','CustomField4','CustomField5','CustomField6','CustomField7',
         // 'CustomField8','CustomField9','CustomField10','CustomField11','CustomField12','CustomField13','CustomField14'
     ];
