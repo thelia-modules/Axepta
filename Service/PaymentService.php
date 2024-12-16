@@ -72,13 +72,30 @@ class PaymentService
         $paymentRequest->setTransID($transId);
         $paymentRequest->setAmount((int) ($order->getTotalAmount() * 100));
         $paymentRequest->setCurrency($order->getCurrency()->getCode());
-        $paymentRequest->setRefNr($order->getId());
+        $paymentRequest->setRefNr($order->getRef());
         $paymentRequest->setURLSuccess($urlNotification);
         $paymentRequest->setURLFailure($urlNotification);
         $paymentRequest->setURLNotify($urlNotification);
         $paymentRequest->setURLBack($urlAnnulation);
         $paymentRequest->setReponse('encrypt');
         $paymentRequest->setLanguage($this->requestStack->getCurrentRequest()?->getSession()->getLang()->getLocale());
+
+        // Customer info mail or mobile phone or landphone required
+        $btc = [
+            'customerNumber' => $order->getCustomer()->getRef(),
+            'consumer' => [
+                'salutation' => match ($order->getCustomer()->getTitleId()) {
+                    3 => 'Miss',
+                    2 => 'Mrs',
+                    default => 'Mr',
+                },
+                'firstName' => $order->getCustomer()->getFirstname(),
+                'lastName' => $order->getCustomer()->getLastname(),
+            ],
+            'email' => $order->getCustomer()->getEmail(),
+        ];
+
+        $paymentRequest->setBillToCustomer(base64_encode(json_encode($btc)));
 
         // Recurring payment request
         $feature = Axepta::getConfigValue(Axepta::PAYMENT_FEATURE, Axepta::PAYMENT_FEATURE_UNIQUE);
