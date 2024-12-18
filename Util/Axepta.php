@@ -96,6 +96,7 @@ class Axepta extends Blowfish
         'CustomField8', 'CustomField9', 'CustomField10', 'CustomField11', 'CustomField12', 'CustomField13', 'CustomField14',
         'MsgVer',
         'credentialOnFile', 'threeDSPolicy', 'schemeReferenceID', 'Card',
+        'billToCustomer'
     ];
     /** Axepta request hmac fields **/
     private $QHMACFields = [

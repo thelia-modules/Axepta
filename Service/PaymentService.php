@@ -180,7 +180,7 @@ class PaymentService
                 throw new \Exception();
             }
         } catch (\Exception $ex) {
-            $log->addInfo("Failed to fin order for transaction ID $transId. Aborting.");
+            $log->addInfo("Failed to find order for transaction ID $transId. Aborting.");
 
             throw new TheliaProcessException(
                 Translator::getInstance()->trans('Failed to find order for transaction ID %id', ['%id' => $transId], Axepta::DOMAIN_NAME)
