@@ -79,6 +79,7 @@ class PaymentService
         $paymentRequest->setURLBack($urlAnnulation);
         $paymentRequest->setReponse('encrypt');
         $paymentRequest->setLanguage($this->requestStack->getCurrentRequest()?->getSession()->getLang()->getLocale());
+        $paymentRequest->setUserData($order->getCustomer()->getFirstname() . ' ' . $order->getCustomer()->getLastname());
 
         // Customer info mail or mobile phone or landphone required
         $btc = [
