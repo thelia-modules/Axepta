@@ -27,6 +27,7 @@ use Axepta\Axepta;
 use Axepta\Model\AxceptaScheme;
 use Axepta\Model\AxceptaSchemeQuery;
 use Axepta\Util\Axepta as AxeptaPayment;
+use Cocur\Slugify\Slugify;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\Event\Order\OrderEvent;
@@ -72,14 +73,14 @@ class PaymentService
         $paymentRequest->setTransID($transId);
         $paymentRequest->setAmount((int) ($order->getTotalAmount() * 100));
         $paymentRequest->setCurrency($order->getCurrency()->getCode());
-        $paymentRequest->setRefNr($order->getRef());
+        $paymentRequest->setRefNr($order->getId());
         $paymentRequest->setURLSuccess($urlNotification);
         $paymentRequest->setURLFailure($urlNotification);
         $paymentRequest->setURLNotify($urlNotification);
         $paymentRequest->setURLBack($urlAnnulation);
         $paymentRequest->setReponse('encrypt');
         $paymentRequest->setLanguage($this->requestStack->getCurrentRequest()?->getSession()->getLang()->getLocale());
-        $paymentRequest->setUserData($order->getCustomer()->getFirstname() . ' ' . $order->getCustomer()->getLastname());
+        $paymentRequest->setUserData($this->removeAccentsAndSpecialChars($order->getCustomer()->getFirstname() . ' ' . $order->getCustomer()->getLastname()));
 
         // Customer info mail or mobile phone or landphone required
         $btc = [
@@ -90,8 +91,8 @@ class PaymentService
                     2 => 'Mrs',
                     default => 'Mr',
                 },
-                'firstName' => $order->getCustomer()->getFirstname(),
-                'lastName' => $order->getCustomer()->getLastname(),
+                'firstName' => $this->removeAccentsAndSpecialChars($order->getCustomer()->getFirstname()),
+                'lastName' => $this->removeAccentsAndSpecialChars($order->getCustomer()->getLastname()),
             ],
             'email' => $order->getCustomer()->getEmail(),
         ];
@@ -139,7 +140,7 @@ class PaymentService
         $paymentRequest->setOrderDesc(
             $mode === 'TEST' ?
                 'Test:0000' :
-                $order->getCustomer()->getFirstname().' '.$order->getCustomer()->getLastname()
+                $this->removeAccentsAndSpecialChars($order->getCustomer()->getFirstname().' '.$order->getCustomer()->getLastname())
         );
 
         $data = $paymentRequest->getBfishCrypt();
@@ -233,5 +234,10 @@ class PaymentService
         $log->addInfo('Failure cause:'.$paymentResponse->getDescription().' ('.$paymentResponse->getCode());
 
         return 'failure';
+    }
+
+    function removeAccentsAndSpecialChars(string $string): string
+    {
+        return (new Slugify())->slugify($string, ' ');
     }
 }
